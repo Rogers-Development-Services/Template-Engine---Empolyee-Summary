@@ -5,15 +5,18 @@ const inquirer = require("inquirer");
 const path = require("path");
 const fs = require("fs");
 
-const OUTPUT_DIR = path.resolve(__dirname, "output"); //creates foldername
-const outputPath = path.join(OUTPUT_DIR, "team.html"); //creates filename
+const OUTPUT_DIR = path.resolve(__dirname, "output");   //creates foldername
+const outputPath = path.join(OUTPUT_DIR, "team.html");  //creates filename
 
-const render = require("./lib/htmlRenderer");   // just call render() at the end!!!
+const render = require("./lib/htmlRenderer");   
+
+const team = [];
 const questions = [
     {
         type: "input",
         message: "What is your name?",
         name: "employeeName",
+        // when: (response) => response.employeeAddition === true,
     },
     {
         type: "input",
@@ -31,6 +34,11 @@ const questions = [
         name: "employeeRole",
         choices: ["Intern", "Engineer", "Manager"],
     },
+    // {
+    //     type: "confirm",
+    //     message: "Is there another employee you'd like to add to your team?",
+    //     name: "employeeAddition",
+    // },
 ];
 const internQuestion = [
     {
@@ -94,26 +102,35 @@ inquirer
 
                 let intern = new Intern (response.employeeName, response.employeeId, response.employeeEmail, internData.internSchool);
                 console.log(intern);
-            } 
-            if (response.employeeRole === "Engineer") {
+
+                team.push(intern);
+                console.log("The team consists of: ", team);
+            } else if (response.employeeRole === "Engineer") {
                 let engineerData = await promptEngineer();
                 console.log("Recently accessed Engineer Information: ", engineerData);
 
                 let engineer = new Engineer (response.employeeName, response.employeeId, response.employeeEmail, engineerData.engineerGithub);
                 console.log(engineer);
-            } 
-            if (response.employeeRole === "Manager") {
+
+                team.push(engineer);
+                console.log("The team consists of: ", team);
+            } else {
                 let managerData = await promptManager();
                 console.log("Recently accessed Manager Information: ", managerData);
 
                 let manager = new Manager (response.employeeName, response.employeeId, response.employeeEmail, managerData.managerOfficeNumber);
                 console.log(manager);
+
+                team.push(manager);
+                console.log("The team consists of: ", team);
             } 
-        })
+        });
 
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
 // generate and return a block of HTML including templated divs for each employee!
+
+render(team);
 
 // After you have your html, you're now ready to create an HTML file using the HTML
 // returned from the `render` function. Now write it to a file named `team.html` in the
