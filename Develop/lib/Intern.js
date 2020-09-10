@@ -2,8 +2,8 @@
 const Employee = require("./Employee");
 
 class Intern extends Employee {
-    constructor(name, id, email, school) {      //why does this constructor need name, id, and email?
-        super(name, id, email);
+    constructor(name, id, email, school) {      
+        super(name, id, email); //shorthand for properties in Employee
         this.school = school;
     }
     getSchool() {
@@ -15,3 +15,17 @@ class Intern extends Employee {
 }
 
 module.exports = Intern;
+
+
+// "this" = {}
+
+// invoke constructor : 
+// let MattR = Intern('matt', 1, 'someemail@something.com', 'cal poly')
+// console.log(MattR.getSchool()) // 'cal poly'
+// console.log(MattR.getName()) // 'matt'
+// console.log(MattR.name) // NO! ;)
+
+// "this" = {
+//     name = 'matt',
+//     ...
+// }
