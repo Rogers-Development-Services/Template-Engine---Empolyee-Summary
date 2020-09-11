@@ -4,19 +4,27 @@ const Intern = require("./lib/Intern");
 const inquirer = require("inquirer");
 const path = require("path");
 const fs = require("fs");
+const util = require("util");
 
 const OUTPUT_DIR = path.resolve(__dirname, "output");   //creates foldername
 const outputPath = path.join(OUTPUT_DIR, "team.html");  //creates filename
 
-const render = require("./lib/htmlRenderer");   
+const render = require("./lib/htmlRenderer");
 
 const team = [];
-const questions = [
+const roleQuestion = [
+    {
+        type: "list",
+        message: "What is your role?",
+        name: "employeeRole",
+        choices: ["Intern", "Engineer", "Manager"],
+    },
+];
+const internQuestions = [
     {
         type: "input",
         message: "What is your name?",
         name: "employeeName",
-        // when: (response) => response.employeeAddition === true,
     },
     {
         type: "input",
@@ -29,102 +37,160 @@ const questions = [
         name: "employeeEmail",
     },
     {
-        type: "list",
-        message: "What is your role?",
-        name: "employeeRole",
-        choices: ["Intern", "Engineer", "Manager"],
-    },
-    // {
-    //     type: "confirm",
-    //     message: "Is there another employee you'd like to add to your team?",
-    //     name: "employeeAddition",
-    // },
-];
-const internQuestion = [
-    {
         type: "input",
         message: "What is the name of your school?",
         name: "internSchool",
     },
+    {
+        type: "confirm",
+        message: "Is there another employee you'd like to add to your team?",
+        name: "employeeAddition",
+    },
 ];
-const engineerQuestion = [
+const engineerQuestions = [
+    {
+        type: "input",
+        message: "What is your name?",
+        name: "employeeName",
+    },
+    {
+        type: "input",
+        message: "What is your ID number?",
+        name: "employeeId",
+    },
+    {
+        type: "input",
+        message: "What is your email address?",
+        name: "employeeEmail",
+    },
     {
         type: "input",
         message: "What is your GitHub username?",
         name: "engineerGithub",
     },
+    {
+        type: "confirm",
+        message: "Is there another employee you'd like to add to your team?",
+        name: "employeeAddition",
+    },
 ];
-const managerQuestion = [
+const managerQuestions = [
+    {
+        type: "input",
+        message: "What is your name?",
+        name: "employeeName",
+    },
+    {
+        type: "input",
+        message: "What is your ID number?",
+        name: "employeeId",
+    },
+    {
+        type: "input",
+        message: "What is your email address?",
+        name: "employeeEmail",
+    },
     {
         type: "input",
         message: "What is your office number?",
         name: "managerOfficeNumber",
     },
+    {
+        type: "confirm",
+        message: "Is there another employee you'd like to add to your team?",
+        name: "employeeAddition",
+    },
 ];
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
-async function promptIntern() {
-    return inquirer
-        .prompt(internQuestion)
-            .then(function(internResponse) {
-                console.log("Intern Response: ", internResponse);
-                return internResponse;
-            })
+
+async function promptQuestions(response) {
+    if (response.employeeRole === "Intern") {
+        let internData = await promptIntern();
+        console.log("Recently accessed Intern Information: ", internData);
+
+        let intern = new Intern(response.employeeName, response.employeeId, response.employeeEmail, internData.internSchool);
+        console.log(intern);
+
+        team.push(intern);
+        console.log("The team consists of: ", team);
+    } else if (response.employeeRole === "Engineer") {
+        let engineerData = await promptEngineer();
+        console.log("Recently accessed Engineer Information: ", engineerData);
+
+        let engineer = new Engineer(response.employeeName, response.employeeId, response.employeeEmail, engineerData.engineerGithub);
+        console.log(engineer);
+
+        team.push(engineer);
+        console.log("The team consists of: ", team);
+    } else {
+        let managerData = await promptManager();
+        console.log("Recently accessed Manager Information: ", managerData);
+
+        let manager = new Manager(response.employeeName, response.employeeId, response.employeeEmail, managerData.managerOfficeNumber);
+        console.log(manager);
+
+        team.push(manager);
+        console.log("The team consists of: ", team);
+    }
 };
-async function promptEngineer() {
-    return inquirer
-        .prompt(engineerQuestion)
-            .then(function(engineerResponse) {
-                console.log("Engineer Response: ", engineerResponse);
-                return engineerResponse;
-            })
+ function promptIntern(internRole) {
+     inquirer
+        .prompt(internQuestions)
+        .then(function (internResponse) {
+            console.log("Intern Response: ", internResponse);
+            // console.log("Intern Object:", internRole);
+            // let newIntern = Object.assign(internRole, internResponse) <-- This concatinates objects
+            let intern = new Intern(internResponse.employeeName, internResponse.employeeId, internResponse.employeeEmail, internResponse.internSchool);
+            team.push(intern);
+            console.log("Intern added to team: ", team);
+            if(internResponse.employeeAddition) {
+                promptUser();
+            }
+        })
 };
-async function promptManager() {
-    return inquirer
-        .prompt(managerQuestion)
-            .then(function(managerResponse) {
-                console.log("Manager Response: ", managerResponse);
-                return managerResponse;
-            })
+function promptEngineer() {
+    inquirer
+        .prompt(engineerQuestions)
+        .then(function (engineerResponse) {
+            console.log("Engineer Response: ", engineerResponse);
+            let newEngineer = Object.assign(engineerRole, engineerResponse)
+            let engineer = new Engineer(newEngineer.name, newEngineer.id, newEngineer.email, newEngineer.engineerGithub);
+            team.push(engineer);
+            console.log("Engineer added to team: ", team);
+            if (engineerResponse.employeeAddition) {
+                promptUser();
+            }
+        })
 };
-
-inquirer
-    .prompt(questions)
-        .then(async function(response) {
-            console.log("Employee Information: ", response);
-            if (response.employeeRole === "Intern") {
-                // promptIntern().then((internData) => {
-                //     console.log("Intern Information :", internData);
-                // });
-                let internData = await promptIntern();
-                console.log("Recently accessed Intern Information: ", internData);
-
-                let intern = new Intern (response.employeeName, response.employeeId, response.employeeEmail, internData.internSchool);
-                console.log(intern);
-
-                team.push(intern);
-                console.log("The team consists of: ", team);
-            } else if (response.employeeRole === "Engineer") {
-                let engineerData = await promptEngineer();
-                console.log("Recently accessed Engineer Information: ", engineerData);
-
-                let engineer = new Engineer (response.employeeName, response.employeeId, response.employeeEmail, engineerData.engineerGithub);
-                console.log(engineer);
-
-                team.push(engineer);
-                console.log("The team consists of: ", team);
+function promptManager() {
+    inquirer
+        .prompt(managerQuestions)
+        .then(function (managerResponse) {
+            console.log("Manager Response: ", managerResponse);
+            // let newManager = Object.assign(managerRole, managerResponse);
+            if (managerResponse.employeeAddition) {
+                promptUser();
+            }
+        })
+};
+function promptUser() {
+    inquirer
+        .prompt(roleQuestion)
+        .then(function (roleOutput) {
+            console.log("Employee Role: ", roleOutput);
+            if (roleOutput.employeeRole === "Intern") {
+                promptIntern(roleOutput);
+            } else if (roleOutput.employeeRole === "Manager") {
+                promptManager();
             } else {
-                let managerData = await promptManager();
-                console.log("Recently accessed Manager Information: ", managerData);
-
-                let manager = new Manager (response.employeeName, response.employeeId, response.employeeEmail, managerData.managerOfficeNumber);
-                console.log(manager);
-
-                team.push(manager);
-                console.log("The team consists of: ", team);
-            } 
+                promptEngineer();
+            }
         });
+}
+
+promptUser();
 
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
