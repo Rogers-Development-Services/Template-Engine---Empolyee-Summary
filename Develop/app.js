@@ -135,7 +135,7 @@ async function promptQuestions(response) {
         console.log("The team consists of: ", team);
     }
 };
- function promptIntern(internRole) {
+ function promptIntern() {
      inquirer
         .prompt(internQuestions)
         .then(function (internResponse) {
@@ -155,8 +155,8 @@ function promptEngineer() {
         .prompt(engineerQuestions)
         .then(function (engineerResponse) {
             console.log("Engineer Response: ", engineerResponse);
-            let newEngineer = Object.assign(engineerRole, engineerResponse)
-            let engineer = new Engineer(newEngineer.name, newEngineer.id, newEngineer.email, newEngineer.engineerGithub);
+            // let newEngineer = Object.assign(engineerRole, engineerResponse)
+            let engineer = new Engineer(engineerResponse.employeeName, engineerResponse.employeeId, engineerResponse.employeeEmail, engineerResponse.engineerGithub);
             team.push(engineer);
             console.log("Engineer added to team: ", team);
             if (engineerResponse.employeeAddition) {
@@ -170,6 +170,9 @@ function promptManager() {
         .then(function (managerResponse) {
             console.log("Manager Response: ", managerResponse);
             // let newManager = Object.assign(managerRole, managerResponse);
+            let manager = new Manager(managerResponse.employeeName, managerResponse.employeeId, managerResponse.employeeEmail, managerResponse.managerOfficeNumber);
+            team.push(manager);
+            console.log("Manager added to team: ", team);
             if (managerResponse.employeeAddition) {
                 promptUser();
             }
